@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { Image, View, Text } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
-import PropType from 'prop-types';
+import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -14,10 +14,10 @@ import style from './styles';
 
 class Map extends Component {
   static propTypes = {
-    showModal: PropType.func.isRequired,
-    user: PropType.shape({
-      data: PropType.arrayOf(
-        PropType.shape({
+    showModal: PropTypes.func.isRequired,
+    user: PropTypes.shape({
+      data: PropTypes.arrayOf(
+        PropTypes.shape({
           id: PropTypes.number,
           login: PropTypes.string,
           coordinate: PropTypes.shape({

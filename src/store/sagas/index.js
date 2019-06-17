@@ -1,5 +1,5 @@
 import {
-  all, takeLatest, call, put,
+  all, takeLatest, call, put, select,
 } from 'redux-saga/effects';
 import api from '~/services/api';
 
@@ -12,17 +12,23 @@ function* findUserGit(action) {
 
     const { data } = yield call(api.get, `/users/${username}`);
 
-    const userData = {
-      id: data.id,
-      name: data.name,
-      avatar_url: data.avatar_url,
-      login: data.login,
-      bio: data.bio,
-      coordinate: action.payload.coordinate,
-    };
+    const isDuplicated = yield select(state => state.user.data.find(user => user.id === data.id));
 
-    yield put(UserActions.addUserSuccess(userData));
-    yield put(ModalActions.hideModal());
+    if (isDuplicated) {
+      yield put(UserActions.addUserFailure('Usuário duplicado'));
+    } else {
+      const userData = {
+        id: data.id,
+        name: data.name,
+        avatar_url: data.avatar_url,
+        login: data.login,
+        bio: data.bio,
+        coordinate: action.payload.coordinate,
+      };
+
+      yield put(UserActions.addUserSuccess(userData));
+      yield put(ModalActions.hideModal());
+    }
   } catch (error) {
     yield put(UserActions.addUserFailure('Usuário não encontrado'));
   }

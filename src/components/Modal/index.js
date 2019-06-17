@@ -8,7 +8,12 @@ import { Creators as ModalActions } from '~/store/ducks/modal';
 import { Creators as UserActions } from '~/store/ducks/user';
 
 import {
-  View, TextInput, TouchableOpacity, Text, Modal as ModalComponent,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Modal as ModalComponent,
+  ActivityIndicator,
 } from 'react-native';
 
 import style from './styles';
@@ -20,6 +25,10 @@ class Modal extends Component {
     modal: PropTypes.shape({
       visible: PropTypes.bool,
     }).isRequired,
+    user: PropTypes.shape({
+      error: PropTypes.oneOfType([PropTypes.string, PropTypes.oneOf([null])]),
+      loading: PropTypes.bool,
+    }).isRequired,
   };
 
   state = { inputUser: '' };
@@ -28,10 +37,11 @@ class Modal extends Component {
     const { inputUser } = this.state;
     const {
       addUserRequest,
+      user: { loading },
       modal: { coordinate },
     } = this.props;
 
-    if (!inputUser) return;
+    if (!inputUser || loading) return;
 
     addUserRequest(inputUser, coordinate);
     this.setState({ inputUser: '' });
@@ -43,7 +53,7 @@ class Modal extends Component {
   };
 
   render() {
-    const { modal } = this.props;
+    const { modal, user } = this.props;
     const { inputUser } = this.state;
     return (
       <ModalComponent animationType="fade" visible={modal.visible}>
@@ -61,6 +71,8 @@ class Modal extends Component {
               placeholderTextColor={style.placeholder.color}
             />
 
+            {user.error && <Text style={style.error}>{user.error}</Text>}
+
             <View style={style.buttonContainerView}>
               <TouchableOpacity
                 onPress={this.closeModal}
@@ -73,7 +85,11 @@ class Modal extends Component {
                 style={[style.buttonContainer, style.save]}
                 onPress={this.submitForm}
               >
-                <Text style={style.buttonText}>Salvar</Text>
+                {user.loading ? (
+                  <ActivityIndicator size="small" color={style.loading.color} />
+                ) : (
+                  <Text style={style.buttonText}>Salvar</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -84,6 +100,7 @@ class Modal extends Component {
 }
 const mapStateToProps = state => ({
   modal: state.modal,
+  user: state.user,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({ ...ModalActions, ...UserActions }, dispatch);
